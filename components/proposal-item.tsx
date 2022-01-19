@@ -14,6 +14,7 @@ import {TransactionStatus} from '@interfaces/enums/transaction-status';
 import useTransactions from '@x-hooks/useTransactions';
 import Translation from './translation';
 import LockedIcon from '@assets/icons/locked-icon';
+import useNetwork from '@x-hooks/use-network';
 
 interface Options {
   proposal: Proposal,
@@ -42,6 +43,7 @@ export default function ProposalItem({
                                      }: Options) {
   const {dispatch,} = useContext(ApplicationContext);
   const txWindow = useTransactions();
+  const { getURLWithNetwork } = useNetwork()
 
   async function handleDispute(mergeId) {
     if (!isDisputable || isFinalized)
@@ -102,7 +104,7 @@ export default function ProposalItem({
 
   return <>
     <div className="content-list-item proposal" key={`${proposal.pullRequestId}${proposal.scMergeId}`}>
-      <Link passHref href={{pathname: '/proposal', query: {prId: proposal.pullRequestId, mergeId: proposal.scMergeId, dbId, issueId},}}>
+      <Link passHref href={getURLWithNetwork('/proposal', {prId: proposal.pullRequestId, mergeId: proposal.scMergeId, dbId, issueId})}>
         <a className="text-decoration-none">
           <div className="rounded row align-items-top">
             <div
