@@ -25,6 +25,7 @@ import {updateTransaction} from '@reducers/update-transaction';
 import {TransactionStatus} from '@interfaces/enums/transaction-status';
 import { changeTransactionalTokenApproval } from './reducers/change-transactional-token-approval';
 import { changeSettlerTokenApproval } from './reducers/change-settler-token-approval';
+import { changeLoadState } from './reducers/change-load-state';
 
 interface GlobalState {
   state: ApplicationState,
@@ -111,10 +112,12 @@ export default function ApplicationContextProvider({children}) {
   }
 
   const Initialize = () => {
+    dispatch(changeLoadState(true))
+
     BeproService.start()
                 .then((state) => {
                   dispatch(changeBeproInitState(state))
-                });
+                }).finally(() => dispatch(changeLoadState(false)))
 
     if (!window.ethereum)
       return;
