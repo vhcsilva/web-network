@@ -13,6 +13,8 @@
 @import "x-tooltip";
 @import "x-stepper";
 
+@import "pages/new-network";
+
 //bootstrap-overrides
 ul,
 ol,
@@ -1285,7 +1287,7 @@ input[type="color"] {
   gap: 10px;
 }
 
-.new-network {
+.amount-input {
   .input-group {
     padding-left: 0;
     padding-right: 0;
@@ -1293,9 +1295,37 @@ input[type="color"] {
     &, > input {
       border-radius: math.div($m, 2);
     }
-
+  
     > input {
       padding: 18px 20px;
     }
   }
+
+  .text {
+    &-primary {
+      svg {
+        path {
+          fill: var(--bs-primary);
+        }
+      }
+    }
+    &-danger {
+      svg {
+        path {
+          fill: var(--bs-danger);
+        }
+      }
+    }
+    &-purple {
+      svg {
+        path {
+          fill: $purple;
+        }
+      }
+    }
+  }
+}
+
+.p-20 {
+  padding: 20px;
 }
