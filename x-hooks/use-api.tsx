@@ -302,6 +302,14 @@ export default function useApi() {
       })
   }
 
+  async function createNetwork(networkInfo) {
+    return client.post('/network', {...networkInfo})
+    .then(response => response)
+      .catch(error => {
+        throw error
+      })
+  }
+
   async function createReviewForPR(issueId: string, pullRequestId: string,  githubLogin: string, body:string) {
     return client.put('/pull-request/review', {issueId, pullRequestId, githubLogin, body})
       .then(response => response)
@@ -355,6 +363,7 @@ export default function useApi() {
     getUserPullRequests,
     createReviewForPR,
     searchIssues,
-    getNetwork
+    getNetwork,
+    createNetwork
   }
 }
