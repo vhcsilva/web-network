@@ -24,6 +24,7 @@ import { changeTransactionalTokenApproval } from '@contexts/reducers/change-tran
 import {getSession} from 'next-auth/react';
 import {serverSideTranslations} from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+import useNetwork from '@x-hooks/use-network';
 
 interface Amount {
   value?: string,
@@ -45,10 +46,12 @@ export default function PageCreateIssue() {
   const {getUserOf, createIssue: apiCreateIssue, patchIssueWithScId} = useApi();
   const txWindow = useTransactions();
   const { t } = useTranslation(['common', 'create-bounty'])
+  const { network, getURLWithNetwork } = useNetwork()
 
   async function allowCreateIssue() {
-    const loggedIn = await BeproService.login();
-    if (!loggedIn)
+    await BeproService.login();
+
+    if (!BeproService.isLoggedIn)
       return;
 
     const tmpTransactional = addTransaction({
@@ -96,33 +99,39 @@ export default function PageCreateIssue() {
       repository_id,
       branch
     }
-    const contractPayload = {tokenAmount: issueAmount.floatValue,};
 
     const openIssueTx = addTransaction({type: TransactionTypes.openIssue, amount: payload.amount});
 
     setRedirecting(true)
-    apiCreateIssue(payload)
+    apiCreateIssue(payload, network?.name)
                       .then(cid => {
+                        console.log({cid})
+
                         if (!cid)
                           throw new Error(t('errors.creating-issue'));
+
                         dispatch(openIssueTx);
-                        return BeproService.network.openIssue({...contractPayload, cid: [repository_id, cid].join(`/`)})
+
+                        console.log(payload)
+
+                        return BeproService.network.openIssue([repository_id, cid].join(`/`), payload.amount)
                                            .then(txInfo => {
                                              txWindow.updateItem(openIssueTx.payload.id, BeproService.parseTransaction(txInfo, openIssueTx.payload));
                                              // BeproService.parseTransaction(txInfo, openIssueTx.payload)
                                              //             .then(block => dispatch(updateTransaction(block)))
                                              return {
                                                githubId: cid,
-                                               issueId: txInfo.events?.OpenIssue?.returnValues?.id && [repository_id, cid].join(`/`)
+                                               issueId: [repository_id, cid].join(`/`)
                                              };
                                            })
                       })
                       .then(({githubId, issueId}) =>
-                        patchIssueWithScId(repository_id, githubId, issueId)
+                        patchIssueWithScId(repository_id, githubId, issueId, network?.name)
                           .then(async(result) => {
                             if (!result)
-                                return dispatch(toastError(t('create-bounty:errors.creating-bounty')));;
-                            await router.push(`/bounty?id=${githubId}&repoId=${repository_id}`)
+                                return dispatch(toastError(t('create-bounty:errors.creating-bounty')));
+
+                            await router.push(getURLWithNetwork(`/bounty`, {id: githubId, repoId: repository_id}))
                           }))
                       .catch(e => {
                         console.error(`Failed to createIssue`, e);
@@ -179,7 +188,7 @@ export default function PageCreateIssue() {
     BeproService.getBalance('bepro').then(setBalance);
     getUserOf(currentAddress).then(setCurrentUser);
   }, [currentAddress])
-
+  
   return (
     <>
       <div className="banner bg-bepro-blue mb-4">

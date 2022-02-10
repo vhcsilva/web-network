@@ -7,10 +7,9 @@ import LockedIcon from '@assets/icons/locked-icon'
 import Button from '@components/button'
 import Avatar from '@components/avatar'
 import Translation from '@components/translation'
+import PullRequestLabels, { PRLabel } from '@components/pull-request-labels'
 
 import { ApplicationContext } from '@contexts/application'
-import Translation from './translation'
-import PullRequestLabels, { PRLabel } from './pull-request-labels'
 
 import { formatDate } from '@helpers/formatDate'
 
