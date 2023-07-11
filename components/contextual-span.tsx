@@ -38,7 +38,7 @@ export function ContextualSpan({
 
   const contextColor = color || context;
   const CLASSES = clsx([
-    `p family-Regular ${icon ? 'font-weight-500 align-items-center' : 'font-weight-400'} border-radius-4  mx-0`,
+    `p family-Regular ${icon ? 'font-weight-500 align-items-center' : 'font-weight-400'} border-radius-4 px-0`,
     `text-${contextColor} ${className}`,
     isAlert && `bg-${contextColor}-25 p-3 border border-${contextColor} border-radius-8 justify-content-between`
   ]);

@@ -4,6 +4,7 @@ import { useTranslation } from "next-i18next";
 
 import ConnectGithub from "components/connect-github";
 import RepositoriesList from "components/custom-network/repositories-list";
+import If from "components/If";
 
 import { useAppState } from "contexts/app-state";
 import { useNetworkSettings } from "contexts/network-settings";
@@ -20,20 +21,25 @@ export default function RepositoriesListSettings() {
 
   return (
     <Row className="mt-4">
-      <span className="caption-medium text-white mb-3">
+      <span className="caption-medium font-weight-medium text-white mb-3">
         {t("custom-network:steps.repositories.label")}
       </span>
-
-      {(!state.currentUser?.login && <ConnectGithub />) || (
+      
+      <If 
+        condition={!!state.currentUser?.login}
+        otherwise={
+          <ConnectGithub />
+        }
+      >
         <RepositoriesList
           repositories={github.repositories}
           onClick={fields.repository.setter}
           withLabel={false}
           botUser={state.Settings?.github?.botUser}
         />
-      )}
+      </If>
 
-      <div className="d-flex align-items-center p-small text-white">
+      <div className="d-flex align-items-center p-small text-white mt-4">
         <FormCheck
             className="form-control-lg px-0 pb-0 mr-1"
             type="checkbox"
