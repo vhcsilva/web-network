@@ -94,7 +94,7 @@ export default function MultipleTokensDropdown({
 
   return (
     <div className="form-group">
-      <label className="caption-small mb-2 text-gray-100 font-weight-medium">
+      <label className="caption-small mb-2 text-gray-100 font-weight-medium text-capitalize">
         {label || t("misc.token")}
       </label>
       <CreatableSelect

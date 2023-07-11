@@ -3,6 +3,7 @@ import {Col, Row} from "react-bootstrap";
 
 import {useTranslation} from "next-i18next";
 
+import If from "components/If";
 import MultipleTokensDropdown from "components/multiple-tokens-dropdown";
 import {WarningSpan} from "components/warning-span";
 
@@ -162,20 +163,10 @@ export default function TokensSettings({
     )
   }
 
-  function renderTokens(type: TokenType) {
-    const col = isGovernorRegistry ? 7 : 12
-    
-    return(
-      <>
-        <Col xs={col} key={`col-${type}`}>{handleSelectTokens(type)}</Col>
-      </>
-    )
-  } 
-  
   return (
     <Col>
       <Row className="mb-3">
-        <span className="caption-medium font-weight-medium text-white">
+        <span className="caption-medium font-weight-medium text-white text-capitalize">
           {isGovernorRegistry
             ? t("custom-network:config-tokens-registry")
             : t("custom-network:config-tokens")}
@@ -184,21 +175,19 @@ export default function TokensSettings({
 
       <Row>
         <Col xs="12" md="6">
-          {renderTokens("transactional")}
+          {handleSelectTokens("transactional")}
         </Col>
 
         <Col xs="12" md="6">
-          {renderTokens("reward")}
+          {handleSelectTokens("reward")}
         </Col>
       </Row>
 
-      {isGovernorRegistry && (
-        <div className="mb-3">
-          <WarningSpan
-            text={t("custom-network:steps.network-settings.fields.other-settings.warning-add-remove-allowed-tokens")}
-          />
-        </div>
-      )}
+      <If condition={isGovernorRegistry}>
+        <WarningSpan
+          text={t("custom-network:steps.network-settings.fields.other-settings.warning-add-remove-allowed-tokens")}
+        />
+      </If>
     </Col>
   );
 }

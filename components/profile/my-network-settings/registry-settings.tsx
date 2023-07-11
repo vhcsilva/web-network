@@ -269,6 +269,27 @@ export default function RegistrySettings({ isGovernorRegistry = false }) {
     }));
   }
 
+  function SubmitButton({ isMobile = false }) {
+    return(
+      <If condition={isGovernorRegistry}>
+        <Col 
+          xs={isMobile ? "12" : "auto"}
+          className={isMobile ? "d-block d-xl-none" : "d-none d-xl-block"}
+        >
+          <Row className="mx-0">
+            <ContractButton
+              disabled={!changedFields.length || hasError || isExecuting}
+              withLockIcon={!changedFields.length || hasError}
+              onClick={processChanges}
+            >
+              {t("misc.save-changes")}
+            </ContractButton>
+          </Row>
+        </Col>
+      </If>
+    );
+  }
+
   useEffect(() => {
     if(!state.Service?.active?.network?.contractAddress) return;
 
@@ -290,21 +311,11 @@ export default function RegistrySettings({ isGovernorRegistry = false }) {
           </span>
         </Col>
         
-        <If condition={isGovernorRegistry}>
-          <Col xs="auto">
-            <ContractButton
-              className="border-radius-4"
-              disabled={!changedFields.length || hasError || isExecuting}
-              onClick={processChanges}
-            >
-              {t("misc.save-changes")}
-            </ContractButton>
-          </Col>
-        </If>
+        <SubmitButton />
       </Row>
 
-      <Row className="mb-4">
-        <Col xs="6">
+      <Row className="mb-5">
+        <Col xs="12" xl="6">
           <Card>
             <Row className="mb-3">
               <span className="caption-medium text-capitalize font-weight-medium text-gray-200">
@@ -329,20 +340,7 @@ export default function RegistrySettings({ isGovernorRegistry = false }) {
         </Col>
       </Row>
 
-      <If condition={isGovernorRegistry}>
-        <TokensSettings 
-          isGovernorRegistry={true}
-          disabled={isFieldsDisabled}
-          onChangeCb={onTokensChanged}
-        />
-      </If>
-
-      <Row 
-        xs="1"
-        sm="2"
-        md="4"
-        className="align-items-top mt-4 mb-5"
-      >
+      <Row className="align-items-top mb-5 gy-3">
         <NetworkParameterInput
           disabled={isFieldsDisabled}
           key="cancel-fee"
@@ -381,6 +379,7 @@ export default function RegistrySettings({ isGovernorRegistry = false }) {
           description={t("setup:registry.fields.network-creation-fee.description")}
           error={networkCreationFeePercentage?.error}
           disabled={isFieldsDisabled}
+          colProps={{ xs: "12", md: "6", xl: "3" }}
         />
 
         <FormGroup
@@ -393,8 +392,19 @@ export default function RegistrySettings({ isGovernorRegistry = false }) {
           disabled={isFieldsDisabled}
           error={lockAmountForNetworkCreation?.error}
           symbol={registryTokenSymbol}
+          colProps={{ xs: "12", md: "6", xl: "3" }}
         />
       </Row>
+
+      <If condition={isGovernorRegistry}>
+        <Row className="mt-5">
+          <TokensSettings 
+            isGovernorRegistry={true}
+            disabled={isFieldsDisabled}
+            onChangeCb={onTokensChanged}
+          />
+        </Row>
+      </If>
 
       <If condition={!isGovernorRegistry}>
         <Row className="mb-4">
@@ -403,6 +413,10 @@ export default function RegistrySettings({ isGovernorRegistry = false }) {
           />
         </Row>
       </If>
+
+      <Row className="mt-3">
+        <SubmitButton isMobile />
+      </Row>
     </>
   );
 }

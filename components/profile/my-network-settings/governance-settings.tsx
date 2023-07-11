@@ -260,7 +260,7 @@ export default function GovernanceSettings({
       <If condition={settings?.validated}>
         <Col 
           xs={isMobile ? "12" : "auto"}
-          className={isMobile ? "d-block d-md-none" : "d-none d-md-block"}
+          className={isMobile ? "d-block d-xl-none" : "d-none d-xl-block"}
         >
           <Row className="mx-0">
             <ContractButton
@@ -291,7 +291,7 @@ export default function GovernanceSettings({
     <>
       <Row className="align-items-center mt-4 pt-2">
         <Col>
-          <span className="caption-medium font-weight-medium text-white">
+          <span className="caption-medium font-weight-medium text-white text-capitalize">
             {t("custom-network:network-info")}
           </span>
         </Col>
@@ -313,7 +313,7 @@ export default function GovernanceSettings({
 
       <Row className="mt-3 gy-3 align-items-end justify-content-between">
         <Col xs="12" md="auto">
-          <label className="caption-small font-weight-medium">
+          <label className="caption-small font-weight-medium text-capitalize">
             {t("custom-network:network-address")}
           </label>
 
@@ -354,7 +354,7 @@ export default function GovernanceSettings({
       </Row>
 
       <div className="mt-4">
-        <span className="caption-medium font-weight-medium text-white">
+        <span className="caption-medium font-weight-medium text-white text-capitalize">
           {t("custom-network:steps.network-settings.fields.other-settings.title")}
         </span>
 
