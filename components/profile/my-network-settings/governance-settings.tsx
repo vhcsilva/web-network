@@ -3,9 +3,12 @@ import { Col, Row } from "react-bootstrap";
 
 import { useTranslation } from "next-i18next";
 
+import Card from "components/card";
+import CopyButton from "components/common/buttons/copy/controller";
 import ContractButton from "components/contract-button";
 import AmountCard from "components/custom-network/amount-card";
 import NetworkContractSettings from "components/custom-network/network-contract-settings";
+import If from "components/If";
 import TokensSettings from "components/profile/my-network-settings/tokens-settings";
 
 import { useAppState } from "contexts/app-state";
@@ -265,72 +268,86 @@ export default function GovernanceSettings({
 
   return (
     <>
-      <Row className="mt-4 mb-3">
-        <span className="caption-medium text-white mb-3">
-          {t("custom-network:network-info")}
-        </span>
+      <Row className="align-items-center mt-4 pt-2">
+        <Col>
+          <span className="caption-medium font-weight-medium text-white">
+            {t("custom-network:network-info")}
+          </span>
+        </Col>
 
+        <If condition={settings?.validated}>
+          <Col xs="auto">
+            <ContractButton
+              disabled={!settings?.validated || isUpdating || forcedNetwork?.isClosed || isClosing}
+              onClick={handleSubmit}
+            >
+              {t("misc.save-changes")}
+            </ContractButton>
+          </Col>
+        </If>
+      </Row>
+
+      <Row className="mt-3 gy-3">
         {networkAmounts.map((amount) => (
-          <Col key={amount.title}>
+          <Col 
+            key={amount.title}
+            xs="12"
+            md="4"
+          >
             <AmountCard {...amount} />
           </Col>
         ))}
       </Row>
 
-      <Row>
-        <Col>
-          <span className="caption-large text-white text-capitalize font-weight-medium mb-3">
-            {t("custom-network:network-info")}
-          </span>
-        </Col>
-
-        <Col xs="auto">
-          <ContractButton
-            className="border-radius-4"
-            disabled={!settings?.validated || isUpdating || forcedNetwork?.isClosed || isClosing}
-            onClick={handleSubmit}
-          >
-            {t("misc.save-changes")}
-          </ContractButton>
-        </Col>
-      </Row>
-
-      <Row className="mt-1">
-        <Col>
-          <label className="caption-small mb-2">
+      <Row className="mt-3 gy-3 align-items-end justify-content-between">
+        <Col xs="12" md="auto">
+          <label className="caption-small font-weight-medium">
             {t("custom-network:network-address")}
           </label>
-          <input
-            type="text"
-            className="form-control"
-            value={address}
-            disabled={true}
-          />
+
+          <Card bodyClassName="py-1 px-2">
+            <Row className=" justify-content-between align-items-center gx-2">
+              <Col xs="auto">
+                <span className="caption-medium text-capitalize font-weight-normal text-gray-50">
+                  {address}
+                </span>
+              </Col>
+
+              <Col xs="auto">
+                <CopyButton
+                  value={address}
+                />
+              </Col>
+            </Row>
+          </Card>
         </Col>
-        <Col className="d-flex align-items-center justify-content-end">
-          <ContractButton
-            color="dark-gray"
-            disabled={!isAbleToClosed || isClosing || !state.currentUser?.login}
-            className="ml-2 border-radius-4"
-            onClick={handleCloseMyNetwork}
-            isLoading={isClosing}
-          >
-            <span>{t("custom-network:close-network")}</span>
-          </ContractButton>
+
+        <Col xs="12" md="auto">
+          <Row className="mx-0">
+            <ContractButton
+              color="dark-gray"
+              disabled={!isAbleToClosed || isClosing || !state.currentUser?.login}
+              withLockIcon={!isAbleToClosed || !state.currentUser?.login}
+              onClick={handleCloseMyNetwork}
+              isLoading={isClosing}
+            >
+              <span>{t("custom-network:close-network")}</span>
+            </ContractButton>
+          </Row>
         </Col>
       </Row>
       
-      <Row className="mt-4">
-       <TokensSettings defaultSelectedTokens={networkToken} />
+      <Row className="mt-4 gy-3">
+        <TokensSettings defaultSelectedTokens={networkToken} />
       </Row>
 
-      <Row className="mt-4">
-        <span className="caption-medium text-white mb-3">
+      <div className="mt-4">
+        <span className="caption-medium font-weight-medium text-white">
           {t("custom-network:steps.network-settings.fields.other-settings.title")}
         </span>
 
         <NetworkContractSettings />
-      </Row>
+      </div>
     </>
   );
 }

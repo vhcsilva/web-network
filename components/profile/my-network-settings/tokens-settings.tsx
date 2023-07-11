@@ -173,14 +173,23 @@ export default function TokensSettings({
   } 
   
   return (
-    <>
-      <Row className="mt-1">
-        <span className="caption-large text-white text-capitalize font-weight-medium mb-3">
+    <Col>
+      <Row className="mb-3">
+        <span className="caption-medium font-weight-medium text-white">
           {isGovernorRegistry
             ? t("custom-network:config-tokens-registry")
             : t("custom-network:config-tokens")}
         </span>
-        {renderTokens("transactional")}
+      </Row>
+
+      <Row>
+        <Col xs="12" md="6">
+          {renderTokens("transactional")}
+        </Col>
+
+        <Col xs="12" md="6">
+          {renderTokens("reward")}
+        </Col>
       </Row>
 
       {isGovernorRegistry && (
@@ -190,10 +199,6 @@ export default function TokensSettings({
           />
         </div>
       )}
-
-      <Row className="mb-2">
-        {renderTokens("reward")}
-      </Row>
-    </>
+    </Col>
   );
 }
