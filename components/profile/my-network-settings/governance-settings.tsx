@@ -10,6 +10,7 @@ import AmountCard from "components/custom-network/amount-card";
 import NetworkContractSettings from "components/custom-network/network-contract-settings";
 import If from "components/If";
 import TokensSettings from "components/profile/my-network-settings/tokens-settings";
+import ResponsiveWrapper from "components/responsive-wrapper";
 
 import { useAppState } from "contexts/app-state";
 import { useNetworkSettings } from "contexts/network-settings";
@@ -254,6 +255,26 @@ export default function GovernanceSettings({
       .finally(() => setIsUpdating(false));
   }
 
+  function SubmitButton({ isMobile = false }) {
+    return(
+      <If condition={settings?.validated}>
+        <Col 
+          xs={isMobile ? "12" : "auto"}
+          className={isMobile ? "d-block d-md-none" : "d-none d-md-block"}
+        >
+          <Row className="mx-0">
+            <ContractButton
+              disabled={!settings?.validated || isUpdating || forcedNetwork?.isClosed || isClosing}
+              onClick={handleSubmit}
+            >
+              {t("misc.save-changes")}
+            </ContractButton>
+          </Row>
+        </Col>
+      </If>
+    );
+  }
+
   useEffect(() => {
     if(tokens.length > 0) setNetworkToken(tokens.map((token) => ({
       ...token,
@@ -275,16 +296,7 @@ export default function GovernanceSettings({
           </span>
         </Col>
 
-        <If condition={settings?.validated}>
-          <Col xs="auto">
-            <ContractButton
-              disabled={!settings?.validated || isUpdating || forcedNetwork?.isClosed || isClosing}
-              onClick={handleSubmit}
-            >
-              {t("misc.save-changes")}
-            </ContractButton>
-          </Col>
-        </If>
+        <SubmitButton />
       </Row>
 
       <Row className="mt-3 gy-3">
@@ -348,6 +360,10 @@ export default function GovernanceSettings({
 
         <NetworkContractSettings />
       </div>
+
+      <Row className="mt-3">
+        <SubmitButton isMobile />
+      </Row>
     </>
   );
 }
