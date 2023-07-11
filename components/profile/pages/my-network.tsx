@@ -86,7 +86,7 @@ export function MyNetwork({
           </NothingFound>
         </Col>
       ||
-        <Col xs={12} xl={10}>
+        <Col xs={12}>
           <MyNetworkSettings
             bounties={bounties}
             network={myNetwork}

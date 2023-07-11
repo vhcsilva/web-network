@@ -8,6 +8,7 @@ import InfoIconEmpty from "assets/icons/info-icon-empty";
 
 import ContractButton from "components/contract-button";
 import ThemeColors from "components/custom-network/theme-colors";
+import If from "components/If";
 import ImageUploader from "components/image-uploader";
 
 import { useAppState } from "contexts/app-state";
@@ -61,7 +62,9 @@ export default function LogoAndColoursSettings({
 
   const isCurrentNetwork = (!!network &&
                             !!state.Service?.network?.active &&
-                            network?.networkAddress === state.Service?.network?.active?.networkAddress)
+                            network?.networkAddress === state.Service?.network?.active?.networkAddress);
+  const isConnected = !!state.currentUser?.walletAddress && !!state.currentUser?.accessToken;
+  const isRegisterButtonDisabled = !isConnected || isRegistering;
 
   const showTextOrDefault = (text: string, defaultText: string) =>
     text?.trim() === "" ? defaultText : text;
@@ -105,7 +108,7 @@ export default function LogoAndColoursSettings({
 
   return (
     <>
-      {networkNeedRegistration && (
+      <If condition={networkNeedRegistration}>
         <Row className="bg-warning-opac-25 py-2 border border-warning border-radius-4 align-items-center mb-2">
           <Col xs="auto">
             <InfoIconEmpty width={12} height={12} />
@@ -117,91 +120,92 @@ export default function LogoAndColoursSettings({
             <ContractButton
               color="warning"
               onClick={handleRegisterNetwork}
-              disabled={
-                !state.currentUser?.walletAddress ||
-                !state.currentUser?.accessToken ||
-                isRegistering
-              }
-              withLockIcon={
-                !state.currentUser?.walletAddress ||
-                !state.currentUser?.accessToken
-              }
+              disabled={isRegisterButtonDisabled}
+              withLockIcon={!isConnected}
               isLoading={isRegistering}
             >
               {t("actions.register")}
             </ContractButton>
           </Col>
         </Row>
-      )}
-      <Row className="mb-3">
-        <h3 className="text-capitalize family-Regular text-white overflow-wrap-anywhere">
-          {network?.name}
-        </h3>
-      </Row>
+      </If>
 
-      <Row className="mb-4 align-items-end">
-        <Col xs="auto">
-          <Row className="mb-2">
-            <span className="caption-small text-gray">
+      <Row className="align-items-end mt-4 gap-5 gap-xl-0">
+        <Col xs={12} lg={6} xl={5}>
+          <Row>
+            <h3 className="text-capitalize family-Regular text-white overflow-wrap-anywhere">
+              {network?.name}
+            </h3>
+          </Row>
+
+          <Row className="mb-2 mt-4">
+            <span className="caption-small font-weight-medium text-gray-400">
               {t("custom-network:query-url")}
             </span>
           </Row>
 
           <Row className="mb-2">
-            <span className="caption-large overflow-wrap-anywhere">
+            <span className="caption-large font-weight-medium overflow-wrap-anywhere">
               <span className="text-white">
                 {urlWithoutProtocol(publicRuntimeConfig?.urls?.api)}/
               </span>
               <span className="text-primary">
                 {showTextOrDefault(getQueryableText(network?.name || ""),
                                    t("custom-network:steps.network-information.fields.name.default"))}
+              </span>/
+              <span>
+                {network?.chain?.chainShortName}
               </span>
             </span>
           </Row>
 
-          <Row className="mb-2">
-            <span className="caption-small text-gray">
+          <Row className="mb-2 mt-4">
+            <span className="caption-small font-weight-medium text-gray-400">
               {t("misc.creation-date")}
             </span>
           </Row>
 
           <Row>
-            <span className="caption-large text-white">
+            <span className="caption-large font-weight-medium text-white">
               {formatDate(network?.createdAt, "-")}
             </span>
           </Row>
         </Col>
 
-        <Col xs="auto">
-          <ImageUploader
-            name="logoIcon"
-            value={details?.iconLogo?.value}
-            isLoading={!details?.iconLogo?.value?.preview}
-            className="bg-shadow"
-            error={details?.iconLogo?.validated === false}
-            onChange={handleIconChange}
-            description={
-              <>
-                {t("misc.upload")} <br />{" "}
-                {t("custom-network:steps.network-information.fields.logo-icon.label")}
-              </>
-            }
-          />
-        </Col>
+        <Col xs="12" md="auto">
+          <Row>
+            <Col xs="auto">
+              <ImageUploader
+                name="logoIcon"
+                value={details?.iconLogo?.value}
+                isLoading={!details?.iconLogo?.value?.preview}
+                className="bg-shadow"
+                error={details?.iconLogo?.validated === false}
+                onChange={handleIconChange}
+                description={
+                  <>
+                    {t("misc.upload")} <br />{" "}
+                    {t("custom-network:steps.network-information.fields.logo-icon.label")}
+                  </>
+                }
+              />
+            </Col>
 
-        <Col xs="auto">
-          <ImageUploader
-            name="fullLogo"
-            value={details?.fullLogo?.value}
-            isLoading={!details?.fullLogo?.value?.preview}
-            className="bg-shadow"
-            error={details?.fullLogo?.validated === false}
-            onChange={handleFullChange}
-            description={`
-          ${t("misc.upload")} ${t("custom-network:steps.network-information.fields.full-logo.label")}
-          `}
-            lg
-          />
+            <Col xs="auto">
+              <ImageUploader
+                name="fullLogo"
+                value={details?.fullLogo?.value}
+                isLoading={!details?.fullLogo?.value?.preview}
+                className="bg-shadow"
+                error={details?.fullLogo?.validated === false}
+                onChange={handleFullChange}
+                description={`
+                  ${t("misc.upload")} ${t("custom-network:steps.network-information.fields.full-logo.label")}
+                `}
+                lg
+              />
+              </Col>
+          </Row>
         </Col>
       </Row>
 
@@ -216,10 +220,11 @@ export default function LogoAndColoursSettings({
       </Row>
 
       <Row className="mt-4">
-        <Col>
-          <span className="caption-medium text-white mb-3">
+        <Col className="mt-4">
+          <span className="caption-medium font-weight-medium text-white mb-3">
             {t("custom-network:steps.network-settings.fields.colors.label")}
           </span>
+
           {!isObjectEmpty(settings?.theme?.colors) ? (
             <ThemeColors
               colors={settings?.theme?.colors}

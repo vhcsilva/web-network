@@ -98,8 +98,8 @@
           "placeholder": "Type a description..."
         },
         "colors": {
-          "label": "Colours",
-          "similar-colors": "These colours are very similar. Please pick a different colour."
+          "label": "Colors",
+          "similar-colors": "These colors are very similar. Please pick a different color."
         }
       },
       "logo-helper": "The logos must be in .svg format"
@@ -108,14 +108,14 @@
       "title": "Network Settings",
       "fields": {
         "colors": {
-          "label": "Network Colours",
-          "similar-colors": "These colours are very similar. Please pick a different colour.",
-          "more-colors": "More colours",
+          "label": "Network Colors",
+          "similar-colors": "These colors are very similar. Please pick a different color.",
+          "more-colors": "More colors",
           "types": {
             "primary": "Primary",
             "secondary": "Secondary",
             "oracle": "Oracle",
-            "text-colour": "Text Colour",
+            "text-colour": "Text Color",
             "background": "Background",
             "background-shadow": "Background Shadow",
             "gray": "Gray",
@@ -287,7 +287,7 @@
     "failed-to-update-network-id": "Failed to update network chain id"
   },
   "tabs": {
-    "logo-and-colours": "Logo & Colours",
+    "logo-and-colours": "Logo & Colors",
     "repositories": "Repositories",
     "governance": "Governance",
     "registry": "Registry"

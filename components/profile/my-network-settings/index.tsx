@@ -329,7 +329,7 @@ export default function MyNetworkSettings({
         <style>{colorsToCSS(settings?.theme?.colors)}</style>
       )}
 
-      {!state.currentUser?.login && <WarningGithub />}
+      {/* {!state.currentUser?.login && <WarningGithub />} */}
 
       <ScrollableTabs
         tabs={tabs.map(tab => ({
