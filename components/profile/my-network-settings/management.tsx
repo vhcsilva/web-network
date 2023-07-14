@@ -9,5 +9,9 @@ interface ManagementProps {
 export default function Management({
   bounties
 }: ManagementProps) {
-  return <BountiesList bounties={bounties} variant="management" />;
+  return(
+    <div className="mt-4">
+      <BountiesList bounties={bounties} variant="management" />
+    </div>
+  );
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {OverlayTrigger, Tooltip} from "react-bootstrap";
 
 import BigNumber from "bignumber.js";
+import clsx from "clsx";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 
@@ -151,12 +152,15 @@ export default function IssueListItem({
         .catch(error => console.debug("Failed to get cancelable time", error));
   }, [state.Service?.active, issue]);
 
-  function IssueTag({uppercase = true}) {
+  function IssueTag() {
     const tag = issue?.network?.name;
     const id = issue?.githubId;
 
     return (
-      <span className={`${(tag && uppercase) && 'text-uppercase' || ""} text-gray me-2`}>
+      <span className={clsx([
+        "caption-small font-weight-normal",
+        isVisible && "text-gray-500" || "text-decoration-line text-gray-600",
+      ])}>
         {tag ? `${tag}-${id}` : `#${id}`}
       </span>
     );
@@ -287,13 +291,14 @@ export default function IssueListItem({
       >
         <div className="row align-center">
           <div className="col-md-6">
-            <span className={`text-truncate ${!isVisible && 'text-decoration-line' || ""}`}>
+            <span className={`text-wrap text-capitalize
+              ${!isVisible && "text-decoration-line text-gray-600" || "text-gray-white"}`}>
               {(issue?.title !== null && issue?.title) || (
                 <Translation ns="bounty" label={"errors.fetching"} />
               )}
             </span>
             <div className={!isVisible && 'text-decoration-line' || ""}>
-              <IssueTag uppercase={false} />
+              <IssueTag />
             </div>
           </div>
           <div className="col-md-2 d-flex justify-content-center">
