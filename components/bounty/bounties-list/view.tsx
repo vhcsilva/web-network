@@ -177,7 +177,7 @@ export default function BountiesListView({
             </InputGroup>
           </div>
 
-          <ResponsiveWrapper xs={false} xl={true} className="col-auto">
+          <ResponsiveWrapper xs={isManagement} xl={true} className="col-auto">
             <ListSort options={sortOptions} />
           </ResponsiveWrapper>
 
@@ -198,7 +198,11 @@ export default function BountiesListView({
       </If>
 
       <If condition={isManagement && hasIssues}>
-        <div className="row row align-center mb-2 pb-1 px-3">
+        <ResponsiveWrapper
+          xs={false}
+          md={true}
+          className="row align-items-center mb-2 pb-1 px-3"
+        >
           {columns?.map((item) => (
             <div
               className={`d-flex col-${
@@ -209,7 +213,7 @@ export default function BountiesListView({
               <span className="caption-medium font-weight-normal text-capitalize text-gray-500">{item}</span>
             </div>
           ))}
-        </div>
+        </ResponsiveWrapper>
       </If>
 
       <If 

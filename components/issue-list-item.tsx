@@ -289,9 +289,9 @@ export default function IssueListItem({
         hide={!isVisible}
         key="management"
       >
-        <div className="row align-center">
-          <div className="col-md-6">
-            <span className={`text-wrap text-capitalize
+        <div className="row align-items-center">
+          <div className="col col-md-6 text-overflow-ellipsis">
+            <span className={`text-capitalize
               ${!isVisible && "text-decoration-line text-gray-600" || "text-gray-white"}`}>
               {(issue?.title !== null && issue?.title) || (
                 <Translation ns="bounty" label={"errors.fetching"} />
@@ -301,7 +301,8 @@ export default function IssueListItem({
               <IssueTag />
             </div>
           </div>
-          <div className="col-md-2 d-flex justify-content-center">
+
+          <ResponsiveWrapper xs={false} md={true} className="col-2 d-flex justify-content-center">
             <FlexColumn className="justify-content-center">
               <div
                 className="cursor-pointer"
@@ -310,24 +311,25 @@ export default function IssueListItem({
                 <ArrowUpRightGray />
               </div>
             </FlexColumn>
-          </div>
-          <div className="col-md-2 d-flex justify-content-center">
-          <FlexColumn className="justify-content-center">
-              <div className="cursor-pointer" onClick={handleHideBounty}>
-                {isVisible ? <EyeIcon /> : <EyeSlashIcon />}
-              </div>
-          </FlexColumn>
-          </div>
-          <div className="col-md-2 d-flex justify-content-center">
-          <FlexColumn className="justify-content-center">
-            {!hideTrashIcon && isCancelable && !['canceled', 'closed', 'proposal'].includes(issue?.state) ? (
-            <div className="cursor-pointer m-0 p-0" onClick={() => setShowHardCancelModal(true)}>
-              <TrashIcon />
-            </div>
-            ): '-'}
+          </ResponsiveWrapper>
 
-          </FlexColumn>
-          </div>
+          <ResponsiveWrapper xs={false} md={true} className="col-2 d-flex justify-content-center">
+            <FlexColumn className="justify-content-center">
+                <div className="cursor-pointer" onClick={handleHideBounty}>
+                  {isVisible ? <EyeIcon /> : <EyeSlashIcon />}
+                </div>
+            </FlexColumn>
+          </ResponsiveWrapper>
+
+          <ResponsiveWrapper xs={false} md={true} className="col-2 d-flex justify-content-center">
+            <FlexColumn className="justify-content-center">
+              {!hideTrashIcon && isCancelable && !['canceled', 'closed', 'proposal'].includes(issue?.state) ? (
+              <div className="cursor-pointer m-0 p-0" onClick={() => setShowHardCancelModal(true)}>
+                <TrashIcon />
+              </div>
+              ): '-'}
+            </FlexColumn>
+          </ResponsiveWrapper>
         </div>
       </CardItem>
       <Modal
