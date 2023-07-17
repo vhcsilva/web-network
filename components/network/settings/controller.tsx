@@ -18,14 +18,12 @@ import {
 import { IM_AM_CREATOR_NETWORK } from "helpers/constants";
 import { psReadAsText } from "helpers/file-reader";
 
-import { StandAloneEvents } from "interfaces/enums/events";
 import { Network } from "interfaces/network";
 
 import { SearchBountiesPaginated } from "types/api";
 
 import useApi from "x-hooks/use-api";
 import { useAuthentication } from "x-hooks/use-authentication";
-import useBepro from "x-hooks/use-bepro";
 import { useNetwork } from "x-hooks/use-network";
 import useNetworkTheme from "x-hooks/use-network-theme";
 
@@ -56,17 +54,15 @@ export default function MyNetworkSettings({
   const [tabs, setTabs] = useState<TabsProps[]>([]);
   const [activeTab, setActiveTab] = useState("logo-and-colours");
 
+  const { updateNetwork } = useApi();
   const { state, dispatch } = useAppState();
   const { colorsToCSS } = useNetworkTheme();
-  const { updateActiveNetwork } = useNetwork();
-  const { updateNetwork, processEvent } = useApi();
-  const { handleChangeNetworkParameter } = useBepro();
   const { signMessage } = useAuthentication();
+  const { updateActiveNetwork } = useNetwork();
   const {
     details,
     github,
     settings,
-    tokens,
     forcedNetwork,
   } = useNetworkSettings();
 
@@ -90,85 +86,6 @@ export default function MyNetworkSettings({
 
     setIsUpdating(true);
 
-    const {
-      parameters: {
-        draftTime: { value: draftTime },
-        disputableTime: { value: disputableTime },
-        councilAmount: { value: councilAmount },
-        percentageNeededForDispute: { value: percentageForDispute },
-      },
-    } = settings;
-
-    const networkAddress = network?.networkAddress;
-    const failed = [];
-    const success = {};
-
-    const promises = await Promise.allSettled([
-      ...(draftTime !== forcedNetwork.draftTime
-        ? [
-            handleChangeNetworkParameter("draftTime",
-                                         draftTime,
-                                         networkAddress)
-              .then(() => ({ param: "draftTime", value: draftTime })),
-        ]
-        : []),
-      ...(disputableTime !== forcedNetwork.disputableTime
-        ? [
-            handleChangeNetworkParameter("disputableTime",
-                                         disputableTime,
-                                         networkAddress)
-              .then(() => ({ param: "disputableTime", value: disputableTime })),
-        ]
-        : []),
-      ...(councilAmount !== +forcedNetwork.councilAmount
-        ? [
-            handleChangeNetworkParameter("councilAmount",
-                                         councilAmount,
-                                         networkAddress)
-              .then(() => ({ param: "councilAmount", value: councilAmount })),
-        ]
-        : []),
-      ...(percentageForDispute !== forcedNetwork.percentageNeededForDispute
-        ? [
-            handleChangeNetworkParameter("percentageNeededForDispute",
-                                         percentageForDispute,
-                                         networkAddress)
-              .then(() => ({ param: "percentageNeededForDispute", value: percentageForDispute })),
-        ]
-        : []),
-    ]);
-
-    promises.forEach((promise) => {
-      if (promise.status === "fulfilled") success[promise.value.param] = promise.value.value;
-      else failed.push(promise.reason);
-    });
-
-    if (failed.length) {
-      dispatch(toastError(t("custom-network:errors.updated-parameters", {
-            failed: failed.length,
-      }),
-                          t("custom-network:errors.updating-values")));
-      console.error(failed);
-    }
-
-    const successQuantity = Object.keys(success).length;
-
-    if (successQuantity) {
-      if(draftTime !== forcedNetwork.draftTime)
-        Promise.all([
-          await processEvent(StandAloneEvents.UpdateBountiesToDraft),
-          await processEvent(StandAloneEvents.BountyMovedToOpen)
-        ]);
-
-      await processEvent(StandAloneEvents.UpdateNetworkParams)
-        .catch(error => console.debug("Failed to update network parameters", error));
-
-      dispatch(toastSuccess(t("custom-network:messages.updated-parameters", {
-          updated: successQuantity,
-          total: promises.length,
-      })));
-    }
-
     const json = {
       description: details?.description || "",
       colors: JSON.stringify(settings.theme.colors),
@@ -188,11 +105,6 @@ export default function MyNetworkSettings({
       githubLogin: state.currentUser.login,
       networkAddress: network.networkAddress,
       accessToken: state.currentUser.accessToken,
-      allowedTokens: {
-       transactional: tokens?.allowedTransactions.map((token) => token?.id).filter((v) => v),
-       reward: tokens?.allowedRewards.map((token) => token?.id).filter((v) => v)
-      },
-      parameters: success,
       allowMerge: github?.allowMerge
     };
 
@@ -218,6 +130,12 @@ export default function MyNetworkSettings({
       })
       .catch(handleError)
       .finally(() => setIsUpdating(false));
+  }
+
+  async function updateNetworkData() {
+    if (isCurrentNetwork) await updateActiveNetwork(true);
+
+    await updateEditingNetwork();
   }
 
   useEffect(() => {
@@ -251,8 +169,6 @@ export default function MyNetworkSettings({
         component: (
           <NetworkLogoAndColorsSettings
             network={network}
-            networkNeedRegistration={networkNeedRegistration}
-            updateEditingNetwork={updateEditingNetwork}
             errorBigImages={errorBigImages}
           />
         ),
@@ -301,6 +217,10 @@ export default function MyNetworkSettings({
   return(
     <MyNetworkSettingsView
       themePreview={isCurrentNetwork ? colorsToCSS(settings?.theme?.colors) : ""}
+      isNetworkUnregistered={networkNeedRegistration}
+      isWalletConnected={!!state.currentUser?.walletAddress}
+      updateNetworkData={updateNetworkData}
+      networkAddress={network?.networkAddress}
       tabs={tabs.map(tab => ({
         label: tab?.title,
         active: tab?.eventKey === activeTab,

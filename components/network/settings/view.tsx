@@ -5,12 +5,11 @@ import { useTranslation } from "next-i18next";
 import ContractButton from "components/contract-button";
 import If from "components/If";
 import ScrollableTabs from "components/navigation/scrollable-tabs/view";
+import { TabsProps } from "components/network/settings/controller";
+import RegisterNetworkWarning from "components/network/settings/register-network-warning/controller";
 import WarningGithub from "components/profile/my-network-settings/warning-github";
 
 import { MiniTabsItem } from "types/components";
-
-import { TabsProps } from "./controller";
-
 
 interface MyNetworkSettingsViewProps {
   themePreview: string;
@@ -20,7 +19,11 @@ interface MyNetworkSettingsViewProps {
   isAbleToSave?: boolean;
   isUpdating?: boolean;
   isGithubConnected?: boolean;
+  isWalletConnected?: boolean;
+  networkAddress: string;
+  isNetworkUnregistered?: boolean;
   handleSubmit: () => Promise<void>;
+  updateNetworkData: () => Promise<void>;
 }
 
 export default function MyNetworkSettingsView({
@@ -31,13 +34,25 @@ export default function MyNetworkSettingsView({
   isAbleToSave,
   isUpdating,
   isGithubConnected,
+  isWalletConnected,
+  networkAddress,
+  isNetworkUnregistered,
   handleSubmit,
+  updateNetworkData,
 }: MyNetworkSettingsViewProps) {
   const { t } = useTranslation(["common", "custom-network", "bounty"]);
 
   return (
     <>
       <style>{themePreview}</style>
+
+      <If condition={isNetworkUnregistered}>
+        <RegisterNetworkWarning
+          isConnected={isWalletConnected}
+          networkAddress={networkAddress}
+          updateNetworkData={updateNetworkData}
+        />
+      </If>
 
       <If condition={!isGithubConnected}>
         <WarningGithub />

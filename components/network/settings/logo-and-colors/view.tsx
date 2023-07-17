@@ -2,9 +2,6 @@ import { Col, Row } from "react-bootstrap";
 
 import { useTranslation } from "next-i18next";
 
-import InfoIconEmpty from "assets/icons/info-icon-empty";
-
-import ContractButton from "components/contract-button";
 import ThemeColors from "components/custom-network/theme-colors";
 import If from "components/If";
 import ImageUploader from "components/image-uploader";
@@ -17,17 +14,12 @@ import { Field, Icon, Network, Theme } from "interfaces/network";
 interface NetworkLogoAndColorsSettingsViewProps {
   baseUrl: string;
   network: Network;
-  isConnected?: boolean;
   networkTheme: Theme;
   isEmptyTheme?: boolean;
-  isRegistering?: boolean;
   iconLogoField: Field<Icon>;
   fullLogoField: Field<Icon>;
   isLogosSizeTooLarge?: boolean;
   queryableNetworkName: string;
-  isNetworkUnregistered?: boolean;
-  isRegisterButtonDisabled?: boolean;
-  onClickRegisterNetwork: () => void;
   onColorChange: (value: string) => void;
   onIconLogoChange: (value: Icon) => void;
   onFullLogoChange: (value: Icon) => void;
@@ -36,49 +28,20 @@ interface NetworkLogoAndColorsSettingsViewProps {
 export default function NetworkLogoAndColorsSettingsView({
   baseUrl,
   network,
-  isConnected,
   networkTheme,
   isEmptyTheme,
-  isRegistering,
   iconLogoField,
   fullLogoField,
   isLogosSizeTooLarge,
   queryableNetworkName,
-  isNetworkUnregistered,
-  isRegisterButtonDisabled,
   onColorChange,
   onIconLogoChange,
   onFullLogoChange,
-  onClickRegisterNetwork,
 }: NetworkLogoAndColorsSettingsViewProps) {
   const { t } = useTranslation(["common", "custom-network"]);
 
   return (
     <NetworkTabContainer>
-      <If condition={isNetworkUnregistered}>
-        <Row className="bg-warning-opac-25 py-2 border border-warning border-radius-4 align-items-center mb-2">
-          <Col xs="auto">
-            <InfoIconEmpty width={12} height={12} />
-
-            <span className="ml-1 caption-small">
-              {t("custom-network:errors.network-not-registered")}
-            </span>
-          </Col>
-
-          <Col xs="auto">
-            <ContractButton
-              color="warning"
-              onClick={onClickRegisterNetwork}
-              disabled={isRegisterButtonDisabled}
-              withLockIcon={!isConnected}
-              isLoading={isRegistering}
-            >
-              {t("actions.register")}
-            </ContractButton>
-          </Col>
-        </Row>
-      </If>
-
       <Row className="align-items-end mt-4 gap-5 gap-xl-0">
         <Col xs={12} lg={6} xl={5}>
           <Row>

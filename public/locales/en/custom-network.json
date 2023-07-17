@@ -268,10 +268,12 @@
   "messages": {
     "refresh-the-page": "Refresh the page for the changes to take effect.",
     "network-closed": "Network closed.",
-    "updated-parameters": "Updated {{updated}} of {{total}} params"
+    "updated-parameters": "Updated {{updated}} of {{total}} params",
+    "network-registered": "Network Registered"
   },
   "errors": {
     "failed-to-create-network": "Failed to create network {{error}}",
+    "failed-to-register-network": "Failed to register network {{error}}",
     "failed-to-update-network": "Failed to update network {{error}}",
     "failed-to-close-network": "Failed to close network {{error}}",
     "invalid-format": "Invalid format",
