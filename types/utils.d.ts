@@ -59,3 +59,9 @@ export interface TotalFiatNetworks {
   price: number;
   networkId: number;
 }
+
+export interface Field {
+  value?: string | string[] | number;
+  originalValue?: string | string[] | number;
+  error?: string;
+}

@@ -63,3 +63,10 @@ export interface ChainFilterProps {
   direction?: Direction;
   onChange?: (value: string | number) => void;
 }
+
+export interface AmountCardProps {
+  title: string;
+  amount?: number;
+  description: string;
+  fixed?: number;
+}

@@ -1,16 +1,8 @@
 import { useEffect, useState } from "react";
-import { Col, Row } from "react-bootstrap";
 
 import { useTranslation } from "next-i18next";
 
-import Card from "components/card";
-import CopyButton from "components/common/buttons/copy/controller";
-import ContractButton from "components/contract-button";
-import AmountCard from "components/custom-network/amount-card";
-import NetworkContractSettings from "components/custom-network/network-contract-settings";
-import If from "components/If";
-import TokensSettings from "components/profile/my-network-settings/tokens-settings";
-import ResponsiveWrapper from "components/responsive-wrapper";
+import NetworkGovernanceSettingsView from "components/network/settings/governance/view";
 
 import { useAppState } from "contexts/app-state";
 import { useNetworkSettings } from "contexts/network-settings";
@@ -34,7 +26,7 @@ interface GovernanceProps {
   updateEditingNetwork: () => void;
 }
 
-export default function GovernanceSettings({
+export default function NetworkGovernanceSettings({
   network,
   tokens,
   address,
@@ -46,7 +38,7 @@ export default function GovernanceSettings({
   const [isUpdating, setIsUpdating] = useState(false);
   const [networkToken, setNetworkToken] = useState<Token[]>();
   
-  const {state, dispatch} = useAppState();
+  const { state, dispatch } = useAppState();
   const { updateActiveNetwork } = useNetwork();
   const { updateNetwork, processEvent } = useApi();
   const { updateWalletBalance, signMessage } = useAuthentication();
@@ -255,115 +247,32 @@ export default function GovernanceSettings({
       .finally(() => setIsUpdating(false));
   }
 
-  function SubmitButton({ isMobile = false }) {
-    return(
-      <If condition={settings?.validated}>
-        <Col 
-          xs={isMobile ? "12" : "auto"}
-          className={isMobile ? "d-block d-xl-none" : "d-none d-xl-block"}
-        >
-          <Row className="mx-0">
-            <ContractButton
-              disabled={!settings?.validated || isUpdating || forcedNetwork?.isClosed || isClosing}
-              onClick={handleSubmit}
-            >
-              {t("misc.save-changes")}
-            </ContractButton>
-          </Row>
-        </Col>
-      </If>
-    );
-  }
-
   useEffect(() => {
-    if(tokens.length > 0) setNetworkToken(tokens.map((token) => ({
-      ...token,
-      isReward: !!token.network_tokens.isReward,
-      isTransactional: !!token.network_tokens.isTransactional
-    })));
+    if(tokens.length > 0) 
+      setNetworkToken(tokens.map((token) => ({
+        ...token,
+        isReward: !!token.network_tokens.isReward,
+        isTransactional: !!token.network_tokens.isTransactional
+      })));
   }, [tokens]);
 
   useEffect(() => {
     updateActiveNetwork(true);
   }, []);
 
-  return (
-    <>
-      <Row className="align-items-center mt-4 pt-2">
-        <Col>
-          <span className="caption-medium font-weight-medium text-white text-capitalize">
-            {t("custom-network:network-info")}
-          </span>
-        </Col>
 
-        <SubmitButton />
-      </Row>
-
-      <Row className="mt-3 gy-3">
-        {networkAmounts.map((amount) => (
-          <Col 
-            key={amount.title}
-            xs="12"
-            md="4"
-          >
-            <AmountCard {...amount} />
-          </Col>
-        ))}
-      </Row>
-
-      <Row className="mt-3 gy-3 align-items-end justify-content-between">
-        <Col xs="12" md="auto">
-          <label className="caption-small font-weight-medium text-capitalize">
-            {t("custom-network:network-address")}
-          </label>
-
-          <Card bodyClassName="py-1 px-2">
-            <Row className=" justify-content-between align-items-center gx-2">
-              <Col xs="auto">
-                <span className="caption-medium text-capitalize font-weight-normal text-gray-50">
-                  {address}
-                </span>
-              </Col>
-
-              <Col xs="auto">
-                <CopyButton
-                  value={address}
-                />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-
-        <Col xs="12" md="auto">
-          <Row className="mx-0">
-            <ContractButton
-              color="dark-gray"
-              disabled={!isAbleToClosed || isClosing || !state.currentUser?.login}
-              withLockIcon={!isAbleToClosed || !state.currentUser?.login}
-              onClick={handleCloseMyNetwork}
-              isLoading={isClosing}
-            >
-              <span>{t("custom-network:close-network")}</span>
-            </ContractButton>
-          </Row>
-        </Col>
-      </Row>
-      
-      <Row className="mt-4 gy-3">
-        <TokensSettings defaultSelectedTokens={networkToken} />
-      </Row>
-
-      <div className="mt-4">
-        <span className="caption-medium font-weight-medium text-white text-capitalize">
-          {t("custom-network:steps.network-settings.fields.other-settings.title")}
-        </span>
-
-        <NetworkContractSettings />
-      </div>
-
-      <Row className="mt-3">
-        <SubmitButton isMobile />
-      </Row>
-    </>
+  return(
+    <NetworkGovernanceSettingsView
+      networkAmounts={networkAmounts}
+      networkAddress={address}
+      isGithubConnected={!!state.currentUser?.login}
+      isAbleToClosed={isAbleToClosed}
+      isClosing={isClosing}
+      networkTokens={networkToken}
+      isSubmitButtonVisible={!!settings?.validated}
+      isSubmitButtonDisabled={!settings?.validated || isUpdating || forcedNetwork?.isClosed || isClosing}
+      onCloseNetworkClick={handleCloseMyNetwork}
+      onSaveChangesClick={handleSubmit}
+    />
   );
 }

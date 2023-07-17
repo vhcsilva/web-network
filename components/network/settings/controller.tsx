@@ -1,17 +1,12 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Col, Row } from "react-bootstrap";
 
 import { useTranslation } from "next-i18next";
 
-import ContractButton from "components/contract-button";
-import ScrollableTabs from "components/navigation/scrollable-tabs/view";
-import { ContainerTab } from "components/profile/my-network-settings/container-tab";
-import GovernanceSettings from "components/profile/my-network-settings/governance-settings";
-import LogoAndColoursSettings from "components/profile/my-network-settings/logo-and-colours-settings";
-import RegistrySettings from "components/profile/my-network-settings/registry-settings";
-import RepositoriesListSettings from "components/profile/my-network-settings/repositories-list-settings";
-import WarningGithub from "components/profile/my-network-settings/warning-github";
-import ReadOnlyButtonWrapper from "components/read-only-button-wrapper";
+import NetworkGovernanceSettings from "components/network/settings/governance/controller";
+import NetworkLogoAndColorsSettings from "components/network/settings/logo-and-colors/controller";
+import NetworkRegistrySettings from "components/network/settings/registry/controller";
+import NetworkRepositoriesSettings from "components/network/settings/repositories/controller";
+import MyNetworkSettingsView from "components/network/settings/view";
 
 import { useAppState } from "contexts/app-state";
 import { useNetworkSettings } from "contexts/network-settings";
@@ -34,15 +29,15 @@ import useBepro from "x-hooks/use-bepro";
 import { useNetwork } from "x-hooks/use-network";
 import useNetworkTheme from "x-hooks/use-network-theme";
 
-import Management from "./management";
+import NetworkManagement from "./management/view";
 
 interface MyNetworkSettingsProps {
   network: Network;
   bounties: SearchBountiesPaginated;
-  updateEditingNetwork: () => void;
+  updateEditingNetwork: () => Promise<void>;
 }
 
-interface TabsProps {
+export interface TabsProps {
   eventKey: string;
   title: string;
   component: ReactNode;
@@ -81,16 +76,6 @@ export default function MyNetworkSettings({
     network?.networkAddress === state.Service?.network?.active?.networkAddress;
 
   const networkNeedRegistration = network?.isRegistered === false;
-
-  function NetworkContainer({children}) {
-    return(
-      <ReadOnlyButtonWrapper>
-        <ContainerTab>
-          {children}
-        </ContainerTab>
-      </ReadOnlyButtonWrapper>
-    )
-  }
 
   async function handleSubmit() {
     if (
@@ -264,55 +249,45 @@ export default function MyNetworkSettings({
         eventKey: "logo-and-colours",
         title: t("custom-network:tabs.logo-and-colours"),
         component: (
-          <NetworkContainer>
-            <LogoAndColoursSettings
-              network={network}
-              networkNeedRegistration={networkNeedRegistration}
-              updateEditingNetwork={updateEditingNetwork}
-              errorBigImages={errorBigImages}
-            />
-          </NetworkContainer>
+          <NetworkLogoAndColorsSettings
+            network={network}
+            networkNeedRegistration={networkNeedRegistration}
+            updateEditingNetwork={updateEditingNetwork}
+            errorBigImages={errorBigImages}
+          />
         ),
       },
       {
         eventKey: "repositories",
         title: t("custom-network:tabs.repositories"),
         component: (
-          <NetworkContainer>
-            <RepositoriesListSettings />
-          </NetworkContainer>
+          <NetworkRepositoriesSettings />
         ),
       },
       {
         eventKey: "governance",
         title: t("custom-network:tabs.governance"),
         component: (
-          <NetworkContainer>
-            <GovernanceSettings
-              address={network?.networkAddress}
-              tokens={network?.tokens}
-              network={network}
-              updateEditingNetwork={updateEditingNetwork}
-            />
-          </NetworkContainer>
+          <NetworkGovernanceSettings
+            address={network?.networkAddress}
+            tokens={network?.tokens}
+            network={network}
+            updateEditingNetwork={updateEditingNetwork}
+          />
         ),
       },
       {
         eventKey: "registry",
         title: t("custom-network:tabs.registry"),
         component: (
-          <NetworkContainer>
-            <RegistrySettings isGovernorRegistry={isGovernorRegistry}/>
-          </NetworkContainer>
+          <NetworkRegistrySettings isGovernorRegistry={isGovernorRegistry} />
         ),
       },
       {
         eventKey: "management",
         title: t("bounty:management.label"),
         component: (
-          <NetworkContainer>
-            <Management bounties={bounties} />
-          </NetworkContainer>
+          <NetworkManagement bounties={bounties} />
         )
       }
     ])
@@ -323,44 +298,26 @@ export default function MyNetworkSettings({
     errorBigImages
   ]);
 
-  return (
-    <>
-      {isCurrentNetwork && (
-        <style>{colorsToCSS(settings?.theme?.colors)}</style>
-      )}
-
-      {/* {!state.currentUser?.login && <WarningGithub />} */}
-
-      <ScrollableTabs
-        tabs={tabs.map(tab => ({
-          label: tab?.title,
-          active: tab?.eventKey === activeTab,
-          onClick: () => setActiveTab(tab?.eventKey)
-        }))}
-      />
-
-      {tabs.find(({ eventKey }) => activeTab === eventKey)?.component}
-
-      {
-        (
-          settings?.validated &&
-          github?.validated &&
-          !network?.isClosed &&
-          !networkNeedRegistration &&
-          !["registry", "governance"].includes(activeTab)
-        ) && (
-          <Row className="mt-3 mb-4">
-            <Col>
-              <ContractButton
-                onClick={handleSubmit}
-                disabled={isUpdating}
-                isLoading={isUpdating}
-              >
-                <span>{t("custom-network:save-settings")}</span>
-              </ContractButton>
-            </Col>
-          </Row>
-        )}
-    </>
+  return(
+    <MyNetworkSettingsView
+      themePreview={isCurrentNetwork ? colorsToCSS(settings?.theme?.colors) : ""}
+      tabs={tabs.map(tab => ({
+        label: tab?.title,
+        active: tab?.eventKey === activeTab,
+        onClick: () => setActiveTab(tab?.eventKey)
+      }))}
+      tabsProps={tabs}
+      activeTab={activeTab}
+      isAbleToSave={
+        settings?.validated &&
+        github?.validated &&
+        !network?.isClosed &&
+        !networkNeedRegistration &&
+        !["registry", "governance"].includes(activeTab)
+      }
+      isUpdating={isUpdating}
+      isGithubConnected={!!state.currentUser?.login}
+      handleSubmit={handleSubmit}
+    />
   );
 }

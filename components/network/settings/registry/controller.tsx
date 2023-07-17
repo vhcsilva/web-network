@@ -1,46 +1,32 @@
-import {useEffect, useState} from "react";
-import {Col, Row} from "react-bootstrap";
+import { useEffect, useState } from "react";
 
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 
-import Card from "components/card";
-import CopyButton from "components/common/buttons/copy/controller";
-import ContractButton from "components/contract-button";
-import NetworkParameterInput from "components/custom-network/network-parameter-input";
-import {FormGroup} from "components/form-group";
-import If from "components/If";
-import LoadingGlobal from "components/loading-global";
-import TokensSettings from "components/profile/my-network-settings/tokens-settings";
-import {WarningSpan} from "components/warning-span";
+import NetworkRegistrySettingsView from "components/network/settings/registry/view";
 
-import {useAppState} from "contexts/app-state";
+import { useAppState } from "contexts/app-state";
 
-import {REGISTRY_LIMITS, RegistryValidator} from "helpers/registry";
+import { REGISTRY_LIMITS, RegistryValidator } from "helpers/registry";
 
 import { RegistryEvents } from "interfaces/enums/events";
 import { Token } from "interfaces/token";
 
-import {RegistryParameters} from "types/dappkit";
+import { RegistryParameters } from "types/dappkit";
+import { Field } from "types/utils";
 
 import useApi from "x-hooks/use-api";
 import { useAuthentication } from "x-hooks/use-authentication";
 import useBepro from "x-hooks/use-bepro";
-import {useNetwork} from "x-hooks/use-network";
+import { useNetwork } from "x-hooks/use-network";
 
 type Executing = "bountyFees" | "creationFee" | "creationAmount" | "transactional" | "reward";
-
-interface Field {
-  value?: string | string[] | number;
-  originalValue?: string | string[] | number;
-  error?: string;
-}
 
 const defaultField = {
   value: "",
   originalValue: ""
 };
 
-export default function RegistrySettings({ isGovernorRegistry = false }) {
+export default function NetworkRegistrySettings({ isGovernorRegistry = false }) {
   const { t } = useTranslation(["common", "custom-network", "setup"]);
 
   const [executingTx, setExecutingTx] = useState<Executing>();
@@ -269,154 +255,32 @@ export default function RegistrySettings({ isGovernorRegistry = false }) {
     }));
   }
 
-  function SubmitButton({ isMobile = false }) {
-    return(
-      <If condition={isGovernorRegistry}>
-        <Col 
-          xs={isMobile ? "12" : "auto"}
-          className={isMobile ? "d-block d-xl-none" : "d-none d-xl-block"}
-        >
-          <Row className="mx-0">
-            <ContractButton
-              disabled={!changedFields.length || hasError || isExecuting}
-              withLockIcon={!changedFields.length || hasError}
-              onClick={processChanges}
-            >
-              {t("misc.save-changes")}
-            </ContractButton>
-          </Row>
-        </Col>
-      </If>
-    );
-  }
-
   useEffect(() => {
     if(!state.Service?.active?.network?.contractAddress) return;
 
     updateRegistryParameters();
   },[state.Service?.active?.network?.contractAddress]);
 
-  return (
-    <>
-      <LoadingGlobal show={isExecuting} dialogClassName="modal-md">
-        {t("misc.changing")} {changingLabels[executingTx]}
-      </LoadingGlobal>
-
-      <Row className="my-3 align-items-center">
-        <Col>
-          <span className="caption-large text-white text-capitalize font-weight-medium mb-3">
-            {isGovernorRegistry
-              ? t("custom-network:registry.config-fees")
-              : t("custom-network:steps.network-settings.fields.fees.title")}
-          </span>
-        </Col>
-        
-        <SubmitButton />
-      </Row>
-
-      <Row className="mb-5">
-        <Col xs="12" xl="6">
-          <Card>
-            <Row className="mb-3">
-              <span className="caption-medium text-capitalize font-weight-medium text-gray-200">
-                {t("custom-network:steps.treasury.fields.address.label")}
-              </span>
-            </Row>
-            
-            <Row className="align-items-center">
-              <Col>
-                <span className="caption-medium text-capitalize font-weight-normal text-gray-50">
-                  {treasuryAddress}
-                </span>
-              </Col>
-
-              <Col xs="auto">
-                <CopyButton
-                  value={treasuryAddress}
-                />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      </Row>
-
-      <Row className="align-items-top mb-5 gy-3">
-        <NetworkParameterInput
-          disabled={isFieldsDisabled}
-          key="cancel-fee"
-          label={t("custom-network:steps.treasury.fields.cancel-fee.label")}
-          description={
-            t("custom-network:steps.treasury.fields.cancel-fee.description", REGISTRY_LIMITS["cancelFeePercentage"])
-          }
-          symbol="%"
-          value={+cancelFeePercentage?.value}
-          error={!!cancelFeePercentage?.error}
-          errorMessage={cancelFeePercentage?.error}
-          onChange={handleChange("cancelFeePercentage")}
-        />
-          
-        <NetworkParameterInput
-          disabled={isFieldsDisabled}
-          key="close-fee"
-          label={t("custom-network:steps.treasury.fields.close-fee.label")}
-          description={
-            t("custom-network:steps.treasury.fields.close-fee.description", REGISTRY_LIMITS["closeFeePercentage"])
-          }
-          symbol="%"
-          value={+closeFeePercentage?.value}
-          error={!!closeFeePercentage?.error}
-          errorMessage={closeFeePercentage?.error}
-          onChange={handleChange("closeFeePercentage")}
-        />
-
-        <FormGroup
-          label={t("setup:registry.fields.network-creation-fee.label")}
-          placeholder="0"
-          symbol="%"
-          value={networkCreationFeePercentage?.value?.toString()}
-          onChange={handleChange("networkCreationFeePercentage")}
-          variant="numberFormat"
-          description={t("setup:registry.fields.network-creation-fee.description")}
-          error={networkCreationFeePercentage?.error}
-          disabled={isFieldsDisabled}
-          colProps={{ xs: "12", md: "6", xl: "3" }}
-        />
-
-        <FormGroup
-          label={t("setup:registry.fields.network-creation-amount.label")}
-          placeholder="0"
-          value={lockAmountForNetworkCreation?.value?.toString()}
-          onChange={handleChange("lockAmountForNetworkCreation")}
-          variant="numberFormat"
-          description={t("setup:registry.fields.network-creation-amount.description")}
-          disabled={isFieldsDisabled}
-          error={lockAmountForNetworkCreation?.error}
-          symbol={registryTokenSymbol}
-          colProps={{ xs: "12", md: "6", xl: "3" }}
-        />
-      </Row>
-
-      <If condition={isGovernorRegistry}>
-        <Row className="mt-5">
-          <TokensSettings 
-            isGovernorRegistry={true}
-            disabled={isFieldsDisabled}
-            onChangeCb={onTokensChanged}
-          />
-        </Row>
-      </If>
-
-      <If condition={!isGovernorRegistry}>
-        <Row className="mb-4">
-          <WarningSpan
-            text={t("custom-network:steps.network-settings.fields.other-settings.warning-registry")}
-          />
-        </Row>
-      </If>
-
-      <Row className="mt-3">
-        <SubmitButton isMobile />
-      </Row>
-    </>
+  return(
+    <NetworkRegistrySettingsView
+      isExecuting={isExecuting}
+      changingLabel={changingLabels[executingTx]}
+      treasuryAddress={treasuryAddress}
+      isGovernorRegistry={isGovernorRegistry}
+      isFieldsDisabled={isFieldsDisabled}
+      cancelFeePercentage={cancelFeePercentage}
+      closeFeePercentage={closeFeePercentage}
+      creationFeePercentage={networkCreationFeePercentage}
+      creationLockAmount={lockAmountForNetworkCreation}
+      registryTokenSymbol={registryTokenSymbol}
+      isSubmitButtonVisible={isGovernorRegistry}
+      isSubmitButtonDisabled={!changedFields.length || hasError || isExecuting}
+      onCancelFeePercentageChange={handleChange("cancelFeePercentage")}
+      onCloseFeePercentageChange={handleChange("closeFeePercentage")}
+      onCreationFeePercentageChange={handleChange("networkCreationFeePercentage")}
+      onCreationLockAmountChange={handleChange("lockAmountForNetworkCreation")}
+      onTokensChanged={onTokensChanged}
+      onSaveChangesClick={processChanges}
+    />
   );
 }

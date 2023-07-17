@@ -21,6 +21,8 @@ export default function MoreActionsDropdown({
   }
 
   function onNativeChange(selectedOption) {
+    if (!actions?.length) return;
+    
     const action = actions[selectedOption.value];
 
     action?.onClick();
