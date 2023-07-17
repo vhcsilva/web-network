@@ -38,6 +38,7 @@ import { useNetwork } from "x-hooks/use-network";
 
 import BountyTagsView from "./bounty/bounty-tags/view";
 import NetworkBadge from "./network/badge/view";
+import MoreActionsDropdown from "./utils/more-actions-dropdown/controller";
 
 interface IssueListItemProps {
   issue?: IssueBigNumberData;
@@ -329,6 +330,16 @@ export default function IssueListItem({
               </div>
               ): '-'}
             </FlexColumn>
+          </ResponsiveWrapper>
+
+          <ResponsiveWrapper xs={true} md={false} className="col-auto d-flex justify-content-center">
+            <MoreActionsDropdown
+              actions={[
+                { content: "Bounty Link", onClick: handleClickCard},
+                { content: isVisible ? "Hide Bounty" : "Show Bounty", onClick: handleHideBounty},
+                { content: "Cancel", onClick: () => setShowHardCancelModal(true)},
+              ]}
+            />
           </ResponsiveWrapper>
         </div>
       </CardItem>
