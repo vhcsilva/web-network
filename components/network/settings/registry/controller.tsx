@@ -127,8 +127,15 @@ export default function NetworkRegistrySettings({ isGovernorRegistry = false }) 
       state.Service.active.getRegistryCreatorAmount(),
       state.Service.active.getRegistryCreatorFee(),
       state.Service.active.getAllowedTokens(),
+      state.Service.active?.registry?.token?.symbol()
     ])
-      .then(([{ treasury, closeFee, cancelFee }, creationAmount, creationFee, { transactional, reward }]) => {
+      .then(([
+        { treasury, closeFee, cancelFee },
+        creationAmount,
+        creationFee,
+        { transactional, reward },
+        registrySymbol
+      ]) => {
         const getField = (value) => ({ value, originalValue: value });
         const toLower = (value: string) => value.toLowerCase();
 
@@ -145,6 +152,7 @@ export default function NetworkRegistrySettings({ isGovernorRegistry = false }) 
           ...previous,
           originalValue: transactional.map(toLower)
         }));
+        setRegistryTokenSymbol(registrySymbol);
       });
   }
 
@@ -256,10 +264,10 @@ export default function NetworkRegistrySettings({ isGovernorRegistry = false }) 
   }
 
   useEffect(() => {
-    if(!state.Service?.active?.network?.contractAddress) return;
+    if(!state.Service?.active?.registry?.contractAddress) return;
 
     updateRegistryParameters();
-  },[state.Service?.active?.network?.contractAddress]);
+  }, [state.Service?.active?.registry?.contractAddress]);
 
   return(
     <NetworkRegistrySettingsView

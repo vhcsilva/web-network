@@ -215,9 +215,9 @@ export default function NetworkGovernanceSettings({
 
     if (successQuantity) {
       if(changedParameters.find(({ param }) => param === "draftTime"))
-        Promise.all([
-          await processEvent(StandAloneEvents.UpdateBountiesToDraft),
-          await processEvent(StandAloneEvents.BountyMovedToOpen)
+        await Promise.all([
+          processEvent(StandAloneEvents.UpdateBountiesToDraft),
+          processEvent(StandAloneEvents.BountyMovedToOpen)
         ]);
 
       await processEvent(StandAloneEvents.UpdateNetworkParams)
@@ -228,6 +228,10 @@ export default function NetworkGovernanceSettings({
           total: promises.length,
       })));
     }
+
+    const hasChangedTokens = !!getChangedTokens().length;
+
+    if (!hasChangedTokens) return;
 
     const json = {
       creator: state.currentUser.walletAddress,
