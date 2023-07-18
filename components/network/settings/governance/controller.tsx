@@ -121,6 +121,57 @@ export default function NetworkGovernanceSettings({
       });
   }
 
+  function getChangedParameters() {
+    const changedParameters = [];
+
+    if (!forcedNetwork) return changedParameters;
+
+    const { parameters } = settings;
+
+    const parametersKeys = [
+      "draftTime",
+      "disputableTime",
+      "councilAmount",
+      "percentageNeededForDispute",
+      "cancelableTime",
+      "oracleExchangeRate",
+      "mergeCreatorFeeShare",
+      "proposerFeeShare",
+    ];
+
+    changedParameters.push(...parametersKeys.filter(param => parameters[param].value !== +forcedNetwork[param]));
+
+    return changedParameters;
+  }
+
+  function getChangedTokens() {
+    const changedTokens = [];
+
+    if (!settingsTokens.allowedRewards || !settingsTokens.allowedTransactions || !network) return changedTokens;
+
+    const getAddress = ({ address }) => address;
+    const hasEqualLength = (arr1, arr2) => arr1.length === arr2.length;
+    const hasSameElements = (arr1, arr2) => arr1.every(el => arr2.find(el2 => el === el2));
+
+    const allowedRewards = settingsTokens.allowedRewards.map(getAddress);
+    const allowedTransactions = settingsTokens.allowedTransactions.map(getAddress);
+
+    const networkRewards = network.tokens.filter(({ isReward }) => isReward).map(getAddress);
+    const networkTransactions = network.tokens.filter(({ isTransactional }) => isTransactional).map(getAddress);
+
+    if (!hasEqualLength(allowedRewards, networkRewards))
+      changedTokens.push("reward");
+    else if (!hasSameElements(allowedRewards, networkRewards))
+      changedTokens.push("reward");
+
+    if (!hasEqualLength(allowedTransactions, networkTransactions))
+      changedTokens.push("transactional");
+    else if (!hasSameElements(allowedTransactions, networkTransactions))
+      changedTokens.push("transactional");
+
+    return changedTokens;
+  }
+
   async function handleSubmit() {
     if (
       !state.currentUser?.walletAddress ||
@@ -133,53 +184,19 @@ export default function NetworkGovernanceSettings({
 
     setIsUpdating(true);
 
-    const {
-      parameters: {
-        draftTime: { value: draftTime },
-        disputableTime: { value: disputableTime },
-        councilAmount: { value: councilAmount },
-        percentageNeededForDispute: { value: percentageForDispute },
-      },
-    } = settings;
+    const changedParameters = getChangedParameters().map(param => ({
+      param,
+      value: settings?.parameters[param]?.value
+    }));
 
     const networkAddress = network?.networkAddress;
     const failed = [];
     const success = {};
 
-    const promises = await Promise.allSettled([
-      ...(draftTime !== forcedNetwork.draftTime
-        ? [
-            handleChangeNetworkParameter("draftTime",
-                                         draftTime,
-                                         networkAddress)
-              .then(() => ({ param: "draftTime", value: draftTime })),
-        ]
-        : []),
-      ...(disputableTime !== forcedNetwork.disputableTime
-        ? [
-            handleChangeNetworkParameter("disputableTime",
-                                         disputableTime,
-                                         networkAddress)
-              .then(() => ({ param: "disputableTime", value: disputableTime })),
-        ]
-        : []),
-      ...(councilAmount !== +forcedNetwork.councilAmount
-        ? [
-            handleChangeNetworkParameter("councilAmount",
-                                         councilAmount,
-                                         networkAddress)
-              .then(() => ({ param: "councilAmount", value: councilAmount })),
-        ]
-        : []),
-      ...(percentageForDispute !== forcedNetwork.percentageNeededForDispute
-        ? [
-            handleChangeNetworkParameter("percentageNeededForDispute",
-                                         percentageForDispute,
-                                         networkAddress)
-              .then(() => ({ param: "percentageNeededForDispute", value: percentageForDispute })),
-        ]
-        : []),
-    ]);
+    const promises = await Promise.allSettled(changedParameters
+      .map(async ({ param, value }) => 
+        handleChangeNetworkParameter(param, value, networkAddress)
+          .then(() => ({ param, value }))));
 
     promises.forEach((promise) => {
       if (promise.status === "fulfilled") success[promise.value.param] = promise.value.value;
@@ -197,7 +214,7 @@ export default function NetworkGovernanceSettings({
     const successQuantity = Object.keys(success).length;
 
     if (successQuantity) {
-      if(draftTime !== forcedNetwork.draftTime)
+      if(changedParameters.find(({ param }) => param === "draftTime"))
         Promise.all([
           await processEvent(StandAloneEvents.UpdateBountiesToDraft),
           await processEvent(StandAloneEvents.BountyMovedToOpen)
@@ -260,7 +277,6 @@ export default function NetworkGovernanceSettings({
     updateActiveNetwork(true);
   }, []);
 
-
   return(
     <NetworkGovernanceSettingsView
       networkAmounts={networkAmounts}
@@ -269,7 +285,9 @@ export default function NetworkGovernanceSettings({
       isAbleToClosed={isAbleToClosed}
       isClosing={isClosing}
       networkTokens={networkToken}
-      isSubmitButtonVisible={!!settings?.validated}
+      isSubmitButtonVisible={
+        !!settings?.validated && (!!getChangedParameters()?.length || !!getChangedTokens()?.length)
+      }
       isSubmitButtonDisabled={!settings?.validated || isUpdating || forcedNetwork?.isClosed || isClosing}
       onCloseNetworkClick={handleCloseMyNetwork}
       onSaveChangesClick={handleSubmit}

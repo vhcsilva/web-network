@@ -54,7 +54,7 @@ export default function MyNetworkSettingsView({
         />
       </If>
 
-      <If condition={!isGithubConnected}>
+      <If condition={!isGithubConnected && activeTab !== "repositories"}>
         <WarningGithub />
       </If>
 
