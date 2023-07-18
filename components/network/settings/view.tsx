@@ -66,14 +66,16 @@ export default function MyNetworkSettingsView({
 
       <If condition={isAbleToSave}>
         <Row className="mt-3 mb-4">
-          <Col>
-            <ContractButton
-              onClick={handleSubmit}
-              disabled={isUpdating}
-              isLoading={isUpdating}
-            >
-              <span>{t("custom-network:save-settings")}</span>
-            </ContractButton>
+          <Col xs="12" xl="auto">
+            <Row className="mx-0">
+              <ContractButton
+                onClick={handleSubmit}
+                disabled={isUpdating}
+                isLoading={isUpdating}
+              >
+                <span>{t("misc.save-changes")}</span>
+              </ContractButton>
+            </Row>
           </Col>
         </Row>
       </If>

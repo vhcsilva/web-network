@@ -233,7 +233,7 @@ export default function MyNetworkSettings({
         github?.validated &&
         !network?.isClosed &&
         !networkNeedRegistration &&
-        !["registry", "governance"].includes(activeTab)
+        !["registry", "governance", "management"].includes(activeTab)
       }
       isUpdating={isUpdating}
       isGithubConnected={!!state.currentUser?.login}
