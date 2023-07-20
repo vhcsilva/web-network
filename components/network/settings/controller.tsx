@@ -138,6 +138,14 @@ export default function MyNetworkSettings({
     await updateEditingNetwork();
   }
 
+  function getTabs(_tabs) {
+    return _tabs.map(tab => ({
+      label: tab?.title,
+      active: tab?.eventKey === activeTab,
+      onClick: () => setActiveTab(tab?.eventKey)
+    }))
+  }
+
   useEffect(() => {
     const logoSize = (details?.fullLogo?.value?.raw?.size || 0) / 1024 / 1024;
     const iconSize = (details?.iconLogo?.value?.raw?.size || 0) / 1024 / 1024;
@@ -221,11 +229,7 @@ export default function MyNetworkSettings({
       isWalletConnected={!!state.currentUser?.walletAddress}
       updateNetworkData={updateNetworkData}
       networkAddress={network?.networkAddress}
-      tabs={tabs.map(tab => ({
-        label: tab?.title,
-        active: tab?.eventKey === activeTab,
-        onClick: () => setActiveTab(tab?.eventKey)
-      }))}
+      tabs={getTabs(tabs)}
       tabsProps={tabs}
       activeTab={activeTab}
       isAbleToSave={
