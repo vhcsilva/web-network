@@ -58,7 +58,7 @@ export default function NetworkGovernanceSettingsView({
         />
       </Row>
 
-      <Row className="mt-3 gy-3">
+      <Row className="mt-0 gy-3">
         {networkAmounts.map((amount) => (
           <Col 
             key={amount.title}
@@ -72,7 +72,7 @@ export default function NetworkGovernanceSettingsView({
 
       <Row className="mt-3 gy-3 align-items-end justify-content-between">
         <Col xs="12" md="auto">
-          <label className="caption-small font-weight-medium text-capitalize">
+          <label className="caption-small font-weight-medium text-capitalize mb-2">
             {t("custom-network:network-address")}
           </label>
 

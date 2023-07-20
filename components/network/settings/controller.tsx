@@ -217,6 +217,7 @@ export default function MyNetworkSettings({
     ])
   },[
     network,
+    bounties,
     isGovernorRegistry,
     networkNeedRegistration,
     errorBigImages
