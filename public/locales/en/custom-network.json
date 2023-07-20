@@ -286,7 +286,8 @@
     "updating-values": "Error updating network values",
     "updated-parameters": "Failed to update {{failed}} params",
     "network-not-registered": "This network has yet to be registered to be usable, please do so.",
-    "failed-to-update-network-id": "Failed to update network chain id"
+    "failed-to-update-network-id": "Failed to update network chain id",
+    "you-dont-have-a-custom-network": "You don't have a custom network created"
   },
   "tabs": {
     "logo-and-colours": "Logo & Colors",

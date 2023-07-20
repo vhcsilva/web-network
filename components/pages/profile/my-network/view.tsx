@@ -2,9 +2,8 @@ import { Col } from "react-bootstrap";
 
 import { useTranslation } from "next-i18next";
 
-import InternalLink from "components/internal-link";
+import NotFound from "components/common/not-found/view";
 import MyNetworkSettings from "components/network/settings/controller";
-import NothingFound from "components/nothing-found";
 import ProfileLayout from "components/profile/profile-layout";
 
 import { Network } from "interfaces/network";
@@ -27,15 +26,11 @@ export default function MyNetworkPageView({
   return(
     <ProfileLayout>
       { !myNetwork &&
-        <Col className="pt-5">
-          <NothingFound description={t("custom-network:errors.not-found")}>
-            <InternalLink
-              href={"/new-network"}
-              label={String(t("actions.create-one"))}
-              uppercase
-            />
-          </NothingFound>
-        </Col>
+        <NotFound 
+          message={t("custom-network:errors.you-dont-have-a-custom-network")}
+          action={t("actions.create-one")}
+          href="/new-network"
+        />
       ||
         <Col xs={12}>
           <MyNetworkSettings
