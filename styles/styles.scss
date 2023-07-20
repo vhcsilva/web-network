@@ -1907,7 +1907,6 @@ input[type="color"] {
 .profile {
   &-content {
     min-height: calc(100vh - $navbar-height);
-    height: max-content;
     border-left: 1px solid $dark-gray;
   }
 }
