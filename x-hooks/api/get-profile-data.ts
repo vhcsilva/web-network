@@ -23,7 +23,7 @@ export default async function getProfilePageData(query: ParsedUrlQuery) {
     "bounties": walletFilter("creator"),
     "pull-requests": walletFilter("pullRequester"),
     "proposals": walletFilter("proposer"),
-    "my-network": { visible: "both", sortBy: query?.sortBy || "visible" },
+    "my-network": { visible: "both", sortBy: query?.sortBy || "visible", order: query?.order || "ASC" },
   }[pageName];
 
   const shouldFetchBounties = 
