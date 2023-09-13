@@ -31,8 +31,7 @@ export const LogAccess = (handler: NextApiHandler) => {
       debug(`${method} access-end`, pathname)
     } catch (e) {
       Logger.error(e, `access-error`, {method, pathname, payload});
-    } finally {
-      Logger.changeActionName(``); // clean action just in case;
+      res.status(e?.status || 500).end();
     }
   }
 }
